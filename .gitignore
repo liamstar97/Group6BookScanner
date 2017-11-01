@@ -1,0 +1,5 @@
+# ignores out/
+out/
+
+#ignores .idea/
+.idea/

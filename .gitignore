@@ -1,5 +1,11 @@
 # ignores out/
 out/
 
-#ignores .idea/
+# ignores .idea/
 .idea/
+
+# ignores webfiles/
+webFiles/
+
+# ignores .txt files
+*.txt

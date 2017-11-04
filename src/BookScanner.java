@@ -27,9 +27,11 @@ public class BookScanner {
         reportList.add("File name: " + fileName);
         println("File URL: " + GUTENBERG_URL_STRING + fileName);
         reportList.add("File URL: " + GUTENBERG_URL_STRING + fileName);
+        println("Number of Words: " + wordCounter(fileName));
         String percentage = getPercentageOfWork(fileName, name, reportList, author);
         println(percentage);
         reportList.add(percentage);
+        writeReport(reportList, printWriter);
         printWriter.close();
         println("DONE!");
     }
@@ -53,15 +55,12 @@ public class BookScanner {
         int sum = 0;
         Scanner input = new Scanner(new File(DIRECTORY + fileName));
         while (input.hasNextLine()) {
-            String line = input.nextLine();
-            Scanner lineScan = new Scanner(line);
-            int count = 0;
-            while (lineScan.hasNext()) {
-                String word = lineScan.next();
-                count++;
-                sum += count;
+            String[] line = input.nextLine().trim().split(" ");
+            for (int i = 0; i < line.length; i++) {
+                if (!line[i].equalsIgnoreCase("")) {
+                    sum++;
+                }
             }
-
         }
         return sum;
     }

@@ -19,6 +19,8 @@ public class BookScanner {
         String fileName = getFileName(input);
         PrintWriter printWriter = new PrintWriter(fileName.split("\\.")[0] + "_Report.txt");
         downloadWebFile(fileName);
+        ArrayList<String> tokens = tokenize(fileName);
+        SentenceAnalysis sentenceAnalysis = sentenceAnalyzer(tokens);
         println("Report on " + name + " by " + author);
         reportList.add("Report on " + name + " by " + author);
         println("Done by Group6 for In Class Lab Project #2");
@@ -27,7 +29,16 @@ public class BookScanner {
         reportList.add("File name: " + fileName);
         println("File URL: " + GUTENBERG_URL_STRING + fileName);
         reportList.add("File URL: " + GUTENBERG_URL_STRING + fileName);
-        println("Number of Words: " + wordCounter(fileName));
+        println("Number of Words: " + tokens.size());
+        reportList.add("Number of Words: " + tokens.size());
+        println("Number of Sentences: " + sentenceAnalysis.getNumSentences());
+        reportList.add("Number of Sentences: " + sentenceAnalysis.getNumSentences());
+        println("Longest Sentence: " + sentenceAnalysis.getMax());
+        reportList.add("Longest Sentence: " + sentenceAnalysis.getMax());
+        println("Shortest Sentence: " + sentenceAnalysis.getMin());
+        reportList.add("Shortest Sentence: " + sentenceAnalysis.getMin());
+        println("Average Number of Words Per Sentence: " + sentenceAnalysis.getAverage());
+        reportList.add("Average Number of Words Per Sentence: " + sentenceAnalysis.getAverage());
         String percentage = getPercentageOfWork(fileName, name, reportList, author);
         println(percentage);
         reportList.add(percentage);
@@ -51,18 +62,55 @@ public class BookScanner {
         return input.nextLine();
     }
 
-    public static int wordCounter(String fileName) throws FileNotFoundException {
-        int sum = 0;
-        Scanner input = new Scanner(new File(DIRECTORY + fileName));
-        while (input.hasNextLine()) {
-            String[] line = input.nextLine().trim().split(" ");
+    public static ArrayList<String> tokenize(String fileName) throws FileNotFoundException {
+        Scanner s = new Scanner(new File(DIRECTORY + fileName));
+        // try link and read the text from your scanner
+        ArrayList<String> tokens = new ArrayList<>();
+        while (s.hasNextLine()) {
+            // get the sum word number and ignore white space
+            String[] line = s.nextLine().trim().split(" ");
             for (int i = 0; i < line.length; i++) {
-                if (!line[i].equalsIgnoreCase("")) {
-                    sum++;
+                // split words that are broken up by two "--" and add them to word sum
+                String[] subLine = line[i].split("--");
+                for (int j = 0; j < subLine.length; j++) {
+                    if (!subLine[j].isEmpty()) {
+                        tokens.add(subLine[j].trim());
+                    }
                 }
             }
         }
-        return sum;
+        return tokens;
+    }
+
+    private static SentenceAnalysis sentenceAnalyzer(ArrayList<String> tokens) {
+        SentenceAnalysis sentenceAnalysis = new SentenceAnalysis();
+        int sentenceCount = 0;
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+        int sentenceSize = 0;
+        String delimiters = ".!?";
+        for (String token : tokens) {
+            sentenceSize++;
+            for (int i = 0; i < token.length() && sentenceSize != 0; i++) {
+                if (delimiters.indexOf(token.charAt(i)) != -1) {
+                    // If the delimiters string contains the character
+                    sentenceCount++;
+                    if (sentenceSize > max) {
+                        max = sentenceSize;
+                    }
+                    if (sentenceSize < min) {
+                        min = sentenceSize;
+                    }
+                    sentenceSize = 0;
+                }
+            }
+        }
+        sentenceAnalysis.setMax(max);
+        sentenceAnalysis.setMin(min);
+        sentenceAnalysis.setNumSentences(sentenceCount);
+        sentenceAnalysis.setAverage((double)tokens.size() / sentenceCount);
+        sentenceAnalysis.setNumWords(tokens.size());
+        return sentenceAnalysis;
     }
 
     private static String getPercentageOfWork(String fileName, String title, ArrayList<String> reportList,
@@ -124,23 +172,7 @@ public class BookScanner {
         println(s);
     }
 
-    private static void println(int n) {
-        System.out.println(n);
-    }
-
-    private static void println(double n) {
-        System.out.println(n);
-    }
-
     private static void print(String s) {
         System.out.print(s);
-    }
-
-    private static void print(int n) {
-        System.out.print(n);
-    }
-
-    private static void print(double n) {
-        System.out.println(n);
     }
 }

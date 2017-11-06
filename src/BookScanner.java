@@ -21,6 +21,7 @@ public class BookScanner {
         downloadWebFile(fileName);
         ArrayList<String> tokens = tokenize(fileName);
         SentenceAnalysis sentenceAnalysis = sentenceAnalyzer(tokens);
+        println("--------------------------------------------------------------------------------------");
         println("Report on " + name + " by " + author);
         reportList.add("Report on " + name + " by " + author);
         println("Done by Group6 for In Class Lab Project #2");
@@ -42,9 +43,9 @@ public class BookScanner {
         String percentage = getPercentageOfWork(fileName, name, reportList, author);
         println(percentage);
         reportList.add(percentage);
-        writeReport(reportList, printWriter);
+        println("--------------------------------------------------------------------------------------");
+        writeReport(reportList, printWriter, fileName);
         printWriter.close();
-        println("DONE!");
     }
 
     private static String getWorkName(Scanner input) {
@@ -62,6 +63,12 @@ public class BookScanner {
         return input.nextLine();
     }
 
+    /**
+     *
+     * @param fileName
+     * @return
+     * @throws FileNotFoundException
+     */
     public static ArrayList<String> tokenize(String fileName) throws FileNotFoundException {
         Scanner s = new Scanner(new File(DIRECTORY + fileName));
         // try link and read the text from your scanner
@@ -82,6 +89,11 @@ public class BookScanner {
         return tokens;
     }
 
+    /**
+     *
+     * @param tokens
+     * @return
+     */
     private static SentenceAnalysis sentenceAnalyzer(ArrayList<String> tokens) {
         SentenceAnalysis sentenceAnalysis = new SentenceAnalysis();
         int sentenceCount = 0;
@@ -91,6 +103,7 @@ public class BookScanner {
         String delimiters = ".!?";
         for (String token : tokens) {
             sentenceSize++;
+            //escapes early in case a token contains two delimiters
             for (int i = 0; i < token.length() && sentenceSize != 0; i++) {
                 if (delimiters.indexOf(token.charAt(i)) != -1) {
                     // If the delimiters string contains the character
@@ -113,6 +126,15 @@ public class BookScanner {
         return sentenceAnalysis;
     }
 
+    /**
+     * returns the percentage of the document that is part of the work
+     * @param fileName file name
+     * @param title title
+     * @param reportList list of reports
+     * @param authorName author name
+     * @return percentage of work
+     * @throws FileNotFoundException
+     */
     private static String getPercentageOfWork(String fileName, String title, ArrayList<String> reportList,
                                               String authorName)
         throws FileNotFoundException {
@@ -141,6 +163,11 @@ public class BookScanner {
         }
     }
 
+    /**
+     * downloads the requested file from gutenberg fiction book library
+     * @param fileName file name
+     * @throws IOException
+     */
     private static void downloadWebFile(String fileName) throws IOException {
         URL fileURL = new URL(GUTENBERG_URL_STRING + fileName);
         File dir = new File(DIRECTORY);
@@ -157,21 +184,31 @@ public class BookScanner {
         Files.copy(fileURL.openStream(), Paths.get(DIRECTORY + fileName), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private static void writeReport(ArrayList<String> reportList, PrintWriter printWriter) {
+    /**
+     * writes to "fileName"_Report.txt
+     * @param reportList list of reports
+     * @param printWriter a print writer
+     * @param fileName name of file
+     */
+    private static void writeReport(ArrayList<String> reportList, PrintWriter printWriter, String fileName) {
         for (int i = 0; i < reportList.size(); i++) {
-            filePrintln(reportList.get(i), printWriter);
+            printWriter.println(reportList.get(i));
         }
+        println("Finished generating " + fileName.split("\\.")[0] + "_Report.txt!");
     }
 
+    /**
+     * shorthand println method.
+     * @param s string
+     */
     private static void println(String s) {
         System.out.println(s);
     }
 
-    private static void filePrintln(String s, PrintWriter printWriter) {
-        printWriter.println(s);
-        println(s);
-    }
-
+    /**
+     * shorthand print method
+     * @param s string
+     */
     private static void print(String s) {
         System.out.print(s);
     }
